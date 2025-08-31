@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple To-Do List</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="app">
+            <header>
+                <div class="header-top">
+                    <h1>📝 My Tasks</h1>
+                    <div class="header-controls">
+                        <button id="darkModeToggle" class="icon-btn" title="Toggle Dark Mode">🌙</button>
+                        <button id="analyticsBtn" class="icon-btn" title="Analytics">📊</button>
+                        <button id="exportBtn" class="icon-btn" title="Export">📤</button>
+                        <input type="file" id="importInput" accept=".json" style="display: none;">
+                        <button id="importBtn" class="icon-btn" title="Import">📥</button>
+                    </div>
+                </div>
+                <div class="stats">
+                    <span>Total: <strong id="totalTasks">0</strong></span>
+                    <span>Done: <strong id="completedTasks">0</strong></span>
+                    <span>Streak: <strong id="streakDays">0</strong> days</span>
+                </div>
+            </header>
+
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="🔍 Search tasks...">
+                    <button id="searchClear" class="search-clear">✕</button>
+                </div>
+            </div>
+
+            <div class="add-task">
+                <input type="text" id="taskInput" placeholder="What needs to be done?">
+                <select id="categorySelect">
+                    <option value="personal">Personal</option>
+                    <option value="work">Work</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="health">Health</option>
+                    <option value="other">Other</option>
+                </select>
+                <input type="date" id="dueDateInput" title="Due date (optional)">
+                <button id="addBtn">Add</button>
+            </div>
+            
+            <div class="task-details" id="taskDetails" style="display: none;">
+                <textarea id="taskNotes" placeholder="Add notes or description..."></textarea>
+                <div class="details-actions">
+                    <button id="saveDetails">Save</button>
+                    <button id="cancelDetails">Cancel</button>
+                </div>
+            </div>
+
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="list">📋 List</button>
+                <button class="view-btn" data-view="calendar">📅 Calendar</button>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="completed">Done</button>
+                <button class="filter-btn" data-filter="today">Today</button>
+                <button class="filter-btn" data-filter="overdue">Overdue</button>
+            </div>
+            
+            <div class="category-filters" id="categoryFilters">
+                <button class="category-btn active" data-category="all">All Categories</button>
+                <button class="category-btn" data-category="personal">Personal</button>
+                <button class="category-btn" data-category="work">Work</button>
+                <button class="category-btn" data-category="shopping">Shopping</button>
+                <button class="category-btn" data-category="health">Health</button>
+                <button class="category-btn" data-category="other">Other</button>
+            </div>
+            
+            <div class="bulk-actions" id="bulkActions" style="display: none;">
+                <button id="selectAllBtn">Select All</button>
+                <button id="bulkCompleteBtn">Mark Done</button>
+                <button id="bulkDeleteBtn">Delete</button>
+                <button id="cancelBulkBtn">Cancel</button>
+            </div>
+
+            <div class="tasks" id="tasksList">
+                <!-- Tasks will be added here -->
+            </div>
+
+            <div id="calendarView" class="calendar-view" style="display: none;">
+                <div class="calendar-header">
+                    <button id="prevMonth" class="nav-btn">‹</button>
+                    <h3 id="currentMonth"></h3>
+                    <button id="nextMonth" class="nav-btn">›</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty">
+                <p>No tasks yet. Add one above! 👆</p>
+            </div>
+            
+            <!-- Analytics Modal -->
+            <div id="analyticsModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📊 Analytics & Insights</h3>
+                        <button id="closeAnalytics" class="close-btn">✕</button>
+                    </div>
+                    <div class="analytics-content">
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <h4>Completion Rate</h4>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="completionProgress"></div>
+                                </div>
+                                <span id="completionRate">0%</span>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>This Week</h4>
+                                <p>Completed: <strong id="weeklyCompleted">0</strong></p>
+                                <p>Added: <strong id="weeklyAdded">0</strong></p>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Categories</h4>
+                                <div id="categoryStats"></div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Productivity</h4>
+                                <p>Best day: <strong id="bestDay">-</strong></p>
+                                <p>Avg per day: <strong id="avgPerDay">0</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Keyboard Shortcuts Help -->
+            <div class="shortcuts-help" id="shortcutsHelp" style="display: none;">
+                <div class="shortcuts-content">
+                    <h4>⌨️ Keyboard Shortcuts</h4>
+                    <div class="shortcuts-list">
+                        <div><kbd>Enter</kbd> Add task</div>
+                        <div><kbd>Esc</kbd> Cancel editing</div>
+                        <div><kbd>Ctrl+A</kbd> Select all</div>
+                        <div><kbd>Ctrl+D</kbd> Toggle dark mode</div>
+                        <div><kbd>Ctrl+F</kbd> Focus search</div>
+                        <div><kbd>?</kbd> Show shortcuts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
